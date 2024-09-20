@@ -3,9 +3,9 @@ Deploy Laravel or Other PHP Apps easily on Apache server from any git repo, for 
 > *Proof of concept right now, but it works.
 
 ## To Use:
-Place these files in your */var/www* on the server once Apache is set-up, just before your "project folder". For example, if I had a Laravel project in "myshop" directory, and it had a path of */var/www/myshop* with web root being */var/www/myshop/public*, then the deployment library would sit at */var/www/app_deploy.py*. This runs using Python 3.  Make sure you read the source code and make sure it is configured for your project correctly.
+Place these files in your */var/www* on the server once Apache is set up, just before your "project folder". For example, if I had a Laravel project in "myshop" directory, and it had a path of */var/www/myshop* with web root being */var/www/myshop/public*, then the deployment library would sit at */var/www/app_deploy.py*. This runs using Python 3.  Make sure you read the source code and make sure it is configured for your project correctly.
 
-**First make sure the virtual hosts are pointing to the '*/var/www/current*' folder, as this is where your live site will be sitting via virtual link. Of course this can be configured to where ever you want it to be, just be sure to align the virutal hosts entry.**
+**First make sure the virtual hosts are pointing to the '*/var/www/current*' folder, as this is where your "live" application will be sitting via virtual link. Of course this can be configured to be anywhere you want it to be, just be sure to align the virtual host entry.**
 
 Then run the *./inst_php_deploy.sh* to set up the directory structure, and if using laravel, then copy your .env and storage folder over to the *shared* folder that the *./inst_php_deploy.sh* just created.
 
