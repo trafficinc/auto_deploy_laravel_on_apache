@@ -78,22 +78,22 @@ def copy_to_shared(cwd, release, shared_dirs, shared_files):
 
 
 # DONT USE!! - todo remove
-def remove_resources_from_release(cwd, release, shared_dirs, shared_files):
-    # for directory in shared_dirs:
-    #     dir_src = cwd + '/releases/' + release + '/' + directory
-    #     if os.path.isdir(dir_src):
-    #         # clear_folder(dir_src)
-    #         run_command("rm -f " + dir_src)
-    #     else:
-    #         print("Directory does not exist to remove: {}".format(dir_src))
-
-    for shared_file in shared_files:
-        file_src = cwd + '/releases/' + release + '/' + shared_file
-        if os.path.isfile(file_src):
-            run_command("rm -f " + file_src)
-            # os.remove(file_src)
-        else:
-            print("File does not exist to remove: {}".format(file_src))
+# def remove_resources_from_release(cwd, release, shared_dirs, shared_files):
+#     # for directory in shared_dirs:
+#     #     dir_src = cwd + '/releases/' + release + '/' + directory
+#     #     if os.path.isdir(dir_src):
+#     #         # clear_folder(dir_src)
+#     #         run_command("rm -f " + dir_src)
+#     #     else:
+#     #         print("Directory does not exist to remove: {}".format(dir_src))
+#
+#     for shared_file in shared_files:
+#         file_src = cwd + '/releases/' + release + '/' + shared_file
+#         if os.path.isfile(file_src):
+#             run_command("rm -f " + file_src)
+#             # os.remove(file_src)
+#         else:
+#             print("File does not exist to remove: {}".format(file_src))
 
 
 def run_command(my_commands):
@@ -111,27 +111,36 @@ def run_deploy_check(cwd, new_release):
     pass
 
 
-def run_vendors(cwd, new_release):
+def run_vendors(config, cwd, new_release):
     # Can edit this section for Laravel specific cmds
     os.chdir(cwd + '/releases/' + new_release)
     which_composer = subprocess.run("which composer", shell=True, stdout=subprocess.PIPE)
     composer = which_composer.stdout.decode('utf-8').rstrip()
     which_php = subprocess.run("which php", shell=True, stdout=subprocess.PIPE)
     php = which_php.stdout.decode('utf-8').rstrip()
-    # Install Composer libs
-    print("Install Composer Libs")
-    run_command(composer + " install --optimize-autoloader")
-    # Install NPM
-    print("Install NPM Libs")
-    run_command("npm install")
-    run_command("npm run production")
-    # Update Laravel
-    print("Update Laravel")
-    run_command(php + " artisan cache:clear")
-    run_command(php + " artisan route:cache")
-    run_command(php + " artisan config:cache")
-    run_command(php + " artisan view:clear")
-    run_command(php + " artisan queue:restart")
+
+    if config['install-composer-packages']:
+        # Install Composer libs
+        print("Install Composer Libs")
+        run_command(composer + " install --optimize-autoloader")
+
+    if config['install-npm-packages']:
+        # Install NPM
+        print("Install NPM Libs")
+        run_command("npm install")
+        run_command("npm run production")
+
+    if config['laravel-clear-caches']:
+        # Laravel cache, view, route, cache reset
+        print("Laravel cache, view, route, cache reset")
+        run_command(php + " artisan cache:clear")
+        run_command(php + " artisan view:clear")
+        run_command(php + " artisan route:cache")
+        run_command(php + " artisan config:cache")
+
+    if config['laravel-clear-caches']:
+        run_command(php + " artisan queue:restart")
+
     os.chdir(cwd)
 
 
@@ -170,16 +179,11 @@ def run_symlinks(cwd, new_release):
     print("Deploy is live!")
 
 
-def run_post_deploy(cwd, new_release):
-    current_release_dir = cwd + "/releases/" + new_release
-    os.chdir(cwd + "/current")
-    run_command("php artisan config:clear")
-    os.chdir(cwd)
-    # run_command("sudo chown -R $USER:www-data shared")
-    # run_command("chmod -R 775 shared/storage")
+# def run_post_deploy(cwd, new_release):
+    # run post deploy scripts here
 
 
-def run_scripts_deploy(cwd, new_release, repo, project_name, shared_dirs, shared_files, last_release,
+def run_scripts_deploy(config, cwd, new_release, repo, project_name, shared_dirs, shared_files, last_release,
                        link_storage_public):
     which_git = subprocess.run("which git", shell=True, stdout=subprocess.PIPE)
     git = which_git.stdout.decode('utf-8').rstrip()
@@ -198,11 +202,11 @@ def run_scripts_deploy(cwd, new_release, repo, project_name, shared_dirs, shared
     #run_command("chown -R youruser:www-data " + cwd + '/releases/' + str(new_release))
     run_command("rm -rf " + storage_dir_src)
 
-    run_vendors(cwd, new_release)
+    run_vendors(config, cwd, new_release)
     run_deploy_check(cwd, new_release)
     symlink_project_resources(cwd, shared_dirs, shared_files, new_release, link_storage_public)
     run_symlinks(cwd, new_release)
-    run_post_deploy(cwd, new_release)
+    # run_post_deploy(cwd, new_release)
 
 
 def get_all_versions(cwd):

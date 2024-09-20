@@ -1,0 +1,16 @@
+repo:
+  source: "git@bitbucket.org:your-git-user-account/repo-name.git"
+  name: "repo-name"
+keep-releases: 5
+shared-directories: ['storage']
+shared-files: ['.env']
+link_storage_public: True
+writable_dirs: []
+writable_use_sudo: False
+deploy_directory_path: '/var/www'
+runtime:
+  install-composer-packages: True
+  install-npm-packages: True
+  laravel-clear-caches: True
+  laravel-queue-restart: True
+  laravel-config-clear: True

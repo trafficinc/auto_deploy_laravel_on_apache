@@ -8,20 +8,23 @@ import sys
 import deploylib
 import datetime
 import optparse
+import yaml
+
+with open('config.yaml') as file:
+    config = yaml.safe_load(file)
 
 # settings
-TEST = False
-repo = 'git@bitbucket.org:yourgituseraccount/reponame.git'
-project_name = 'reponame'
-keep_releases = 5
-shared_dirs = ['storage']
-shared_files = ['.env']
-link_storage_public = True
-writable_dirs = []
-writable_use_sudo = False
-deploy_path = '/var/www'
+TEST = True
+repo = config['repo']['source']
+project_name = config['repo']['name']
+keep_releases = config['keep-releases']
+shared_dirs = config['shared-directories']
+shared_files = config['shared-files']
+link_storage_public = config['link_storage_public']
+writable_dirs = config['writable_dirs']
+writable_use_sudo = config['writable_use_sudo']
+deploy_path = config['deploy_directory_path']
 cwd = os.getcwd()
-
 
 # deploylib.cleanup_releases(cwd, keep_releases)
 parser = optparse.OptionParser("App Deploy")
@@ -29,7 +32,7 @@ parser = optparse.OptionParser("App Deploy")
 parser.add_option('-b', '--rollback', action="store", dest="rollback", help="rollback release", default=False)
 parser.add_option('-v', '--releases', action="store_true", dest="releases", help="show releases", default=False)
 parser.add_option('-d', '--deploy', action="store_true", dest="deploy", help="deploy release", default=False)
-#parser.add_option('-h', '--help', action="store_true", dest="help", help="help", default=False)
+# parser.add_option('-h', '--help', action="store_true", dest="help", help="help", default=False)
 
 options, args = parser.parse_args()
 
@@ -103,7 +106,6 @@ else:
 
     print('New releases file created')
 
-
 if run_first_time:
     deploylib.create_directory(cwd, cwd + '/releases', '0')
     deploylib.create_directory(cwd, cwd + '/releases', '1')
@@ -118,16 +120,14 @@ else:
     last_release = latest_release - 1
     latest_release = new_release
 
-
 deploylib.create_directory(cwd, cwd + '/releases', str(new_release))
 # copy to shared. shared_dirs, shared_files
 shared_copy_logs = deploylib.copy_to_shared(cwd, str(last_release), shared_dirs, shared_files)
 print(shared_copy_logs)
 
 # git download code, run deploy script.
-deploylib.run_scripts_deploy(cwd, str(latest_release), repo, project_name, shared_dirs, shared_files, str(last_release), link_storage_public)
+deploylib.run_scripts_deploy(config['runtime'], cwd, str(latest_release), repo, project_name, shared_dirs, shared_files, str(last_release), link_storage_public)
 deploylib.cleanup_releases(cwd, keep_releases)
 
 deploylib.run_command("rm -f " + cwd + "/.dep/deploy.lock")
 print("Deploy lock file released.")
-
