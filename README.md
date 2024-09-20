@@ -14,7 +14,7 @@ Then run the *./inst_php_deploy.sh* to set up the directory structure, and if us
 
 *youruser@localhost:/var/www$ python3 app_deploy.py -d*
 
-*Permission issues can be solved by correcting your permissions on folders/files.
+> Permission issues can be solved by correcting your permissions on folders/files.
 
 ### To view releases
 
